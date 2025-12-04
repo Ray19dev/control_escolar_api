@@ -1,13 +1,26 @@
 import os
+from pathlib import Path  # IMPORTANTE: Usamos Path para rutas modernas
+import dj_database_url
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 1. CORRECCIÓN: Usamos Path en lugar de os.path para que funcione el operador '/'
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Mantén la clave secreta en variables de entorno en producción
-SECRET_KEY = '-_&+lsebec(whhw!%n@ww&1j=4-^j_if9x8$q778+99oz&!ms2'
+# 2. SEGURIDAD: Intentamos leer la SECRET_KEY de las variables de entorno de Render.
+# Si no existe (en local), usa la clave por defecto (insegura, solo para dev).
+SECRET_KEY = os.environ.get('SECRET_KEY', default='-_&+lsebec(whhw!%n@ww&1j=4-^j_if9x8$q778+99oz&!ms2')
 
-DEBUG = True  # en desarrollo
+# DEBUG será False si estamos en Render (seguridad), True en local.
+DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+# 3. CORRECCIÓN: Añadimos el host que Render nos asigna automáticamente.
+ALLOWED_HOSTS = []
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# También permitimos localhost para pruebas locales
+ALLOWED_HOSTS.extend(["localhost", "127.0.0.1"])
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -15,17 +28,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_filters',                 # necesarios para los filtros de DRF
+    'django_filters',
     'rest_framework',
-    'rest_framework.authtoken',       # conserva soporte de tokens de DRF
-    'corsheaders',                    # librería CORS actualizada
+    'rest_framework.authtoken',
+    'corsheaders',
     'control_escolar_desit_api',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # WhiteNoise justo después de Security
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',     # CORS debe ir antes de CommonMiddleware
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -33,25 +47,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Configuración de CORS: define orígenes permitidos y quita CORS_ORIGIN_ALLOW_ALL
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:4200',
-]
-CORS_ALLOW_CREDENTIALS = True
-
 ROOT_URLCONF = 'control_escolar_desit_api.urls'
-
-
-
-import os
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-STATIC_URL = "/static/"
-# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-# TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "templates")]
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 TEMPLATES = [
     {
@@ -71,14 +67,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'control_escolar_desit_api.wsgi.application'
 
+# Base de datos
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': os.path.join(BASE_DIR, "my.cnf"),
-            'charset': 'utf8mb4',
-        }
-    }
+    'default': dj_database_url.config(
+        # En local usa SQLite, en Render usa la variable DATABASE_URL interna
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -94,7 +89,31 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+# --- ARCHIVOS ESTÁTICOS Y MEDIA ---
+
 STATIC_URL = '/static/'
+# Ahora sí funciona el operador '/' porque BASE_DIR es un objeto Path
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# 4. CORRECCIÓN: Configuración necesaria para que WhiteNoise comprima y sirva archivos
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# --- CORS ---
+# OJO: En producción, aquí debes poner la URL de tu Frontend (ej. Vercel/Netlify)
+# Si tu frontend también está en localhost:4200, esto está bien para dev.
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+    "http://127.0.0.1:4200",
+]
+
+# Si necesitas permitir todos los orígenes temporalmente para probar en producción:
+# CORS_ALLOW_ALL_ORIGINS = True  # (Descomenta esto solo si tienes errores de CORS al inicio)
+
+CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,

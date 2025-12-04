@@ -67,14 +67,35 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'control_escolar_desit_api.wsgi.application'
 
-# Base de datos
-DATABASES = {
-    'default': dj_database_url.config(
-        # En local usa SQLite, en Render usa la variable DATABASE_URL interna
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600
-    )
-}
+
+# ====================================================================
+# CORRECCIÓN FINAL DE BASE DE DATOS PARA EVITAR UnknownSchemeError
+# ====================================================================
+
+# 1. Obtiene el valor de la variable de entorno DATABASE_URL (si no existe, es None).
+db_from_env = os.environ.get('DATABASE_URL')
+
+if db_from_env:
+    # Si la variable existe (en Render), la usa directamente.
+    DATABASES = {
+        'default': dj_database_url.config(
+            conn=db_from_env,
+            conn_max_age=600
+        )
+    }
+else:
+    # Si la variable NO existe (en desarrollo local), usa el fallback de SQLite.
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+            conn_max_age=600
+        )
+    }
+
+# ====================================================================
+# FIN DEL BLOQUE DE BASE DE DATOS
+# ====================================================================
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -103,15 +124,10 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # --- CORS ---
-# OJO: En producción, aquí debes poner la URL de tu Frontend (ej. Vercel/Netlify)
-# Si tu frontend también está en localhost:4200, esto está bien para dev.
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
     "http://127.0.0.1:4200",
 ]
-
-# Si necesitas permitir todos los orígenes temporalmente para probar en producción:
-# CORS_ALLOW_ALL_ORIGINS = True  # (Descomenta esto solo si tienes errores de CORS al inicio)
 
 CORS_ALLOW_CREDENTIALS = True
 

@@ -30,3 +30,54 @@ class Administradores(models.Model):
 
 # TODO: Agregar perfiles para estudiantes y profesores
 
+class Maestros(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, default=None)
+    id_trabajador = models.CharField(max_length=255,null=True, blank=True)
+    fecha_nacimiento = models.DateTimeField(auto_now_add=False, null=True, blank=True)
+    telefono = models.CharField(max_length=255, null=True, blank=True)
+    rfc = models.CharField(max_length=255,null=True, blank=True)
+    cubiculo = models.CharField(max_length=255,null=True, blank=True)
+    edad = models.IntegerField(null=True, blank=True)
+    area_investigacion = models.CharField(max_length=255,null=True, blank=True)
+    materias_json = models.TextField(null=True, blank=True)
+    creation = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    update = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+         return "Perfil del maestro "+self.user.first_name+" "+self.user.last_name
+        
+class Alumnos(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, default=None)
+    matricula = models.CharField(max_length=255,null=True, blank=True)
+    curp = models.CharField(max_length=255,null=True, blank=True)
+    rfc = models.CharField(max_length=255,null=True, blank=True)
+    fecha_nacimiento = models.DateTimeField(auto_now_add=False, null=True, blank=True)
+    edad = models.IntegerField(null=True, blank=True)
+    telefono = models.CharField(max_length=255, null=True, blank=True)
+    ocupacion = models.CharField(max_length=255,null=True, blank=True)
+    creation = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    update = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+         return "Perfil del alumno "+self.user.first_name+" "+self.user.last_name
+
+
+
+class Materias(models.Model):
+    nrc = models.CharField(max_length=20, unique=True)
+    nombre = models.CharField(max_length=150)
+    section = models.CharField(max_length=20)
+    dias_json = models.TextField(null=True, blank=True)
+    hora_inicio = models.TimeField()
+    hora_final = models.TimeField()
+    salon = models.CharField(max_length=50)
+    programa = models.CharField(max_length=100)   
+    id_maestro = models.ForeignKey(Maestros, on_delete=models.CASCADE)
+    creditos = models.PositiveIntegerField()
+    creation = models.DateTimeField(auto_now_add=True)
+    update = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Materia "+self.nombre  +self.nrc

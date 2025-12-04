@@ -13,13 +13,17 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='-_&+lsebec(whhw!%n@ww&1j=4-^j
 DEBUG = 'RENDER' not in os.environ
 
 # 3. CORRECCIÓN: Añadimos el host que Render nos asigna automáticamente.
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "control-escolar-api-jupa.onrender.com",  # BACKEND en Render
+]
+
+# Si Render pone el hostname interno, lo agregamos
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# También permitimos localhost para pruebas locales
-ALLOWED_HOSTS.extend(["localhost", "127.0.0.1", ])
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -114,13 +118,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # --- CORS ---
 CORS_ALLOWED_ORIGINS = [
+    "https://control-escolar-webapp.onrender.com",  # tu frontend
     "http://localhost:4200",
     "http://127.0.0.1:4200",
-    "https://control-escolar-webapp.onrender.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,

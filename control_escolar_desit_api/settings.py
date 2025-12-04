@@ -118,9 +118,14 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # --- CORS ---
 CORS_ALLOWED_ORIGINS = [
-    "https://control-escolar-webapp.onrender.com",  # tu frontend
+    "https://control-escolar-webapp.onrender.com",  
+     "https://control-escolar-webapp-u9pa.onrender.com",
     "http://localhost:4200",
     "http://127.0.0.1:4200",
+]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https:\/\/control-escolar-webapp.*\.onrender\.com$",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

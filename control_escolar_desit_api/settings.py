@@ -72,24 +72,14 @@ WSGI_APPLICATION = 'control_escolar_desit_api.wsgi.application'
 # CORRECCIÓN FINAL DE BASE DE DATOS PARA EVITAR UnknownSchemeError
 # ====================================================================
 
-db_from_env = os.environ.get('DATABASE_URL')
-
-if db_from_env:
-    # Si la variable existe (en Render), la usa directamente con el argumento 'url'.
-    DATABASES = {
-        'default': dj_database_url.config(
-            url=db_from_env,  # <--- ¡CORRECCIÓN CLAVE! Cambiado de 'conn' a 'url'
-            conn_max_age=600
-        )
-    }
-else:
-    # Si la variable NO existe (en desarrollo local), usa el fallback de SQLite.
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-            conn_max_age=600
-        )
-    }
+DATABASES = {
+    'default': dj_database_url.config(
+        # 1. Obtiene DATABASE_URL de Render. Si no existe, usa la cadena 'not_found'
+        #    (Esto evita que una cadena vacía "" rompa dj-database-url)
+        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
+        conn_max_age=600
+    )
+}
 
 # ====================================================================
 # FIN DEL BLOQUE DE BASE DE DATOS

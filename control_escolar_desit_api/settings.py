@@ -16,7 +16,8 @@ DEBUG = 'RENDER' not in os.environ
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "control-escolar-api-jupa.onrender.com",  # BACKEND en Render
+    "control-escolar-api-jupa.onrender.com", 
+    "control-escolar-api-iupa.onrender.com",# BACKEND en Render
 ]
 
 # Si Render pone el hostname interno, lo agregamos
@@ -144,6 +145,11 @@ CORS_ALLOW_METHODS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://control-escolar-webapp.onrender.com",
+    "https://control-escolar-api-iupa.onrender.com",
+]
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,

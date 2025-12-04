@@ -72,14 +72,13 @@ WSGI_APPLICATION = 'control_escolar_desit_api.wsgi.application'
 # CORRECCIÓN FINAL DE BASE DE DATOS PARA EVITAR UnknownSchemeError
 # ====================================================================
 
-# 1. Obtiene el valor de la variable de entorno DATABASE_URL (si no existe, es None).
 db_from_env = os.environ.get('DATABASE_URL')
 
 if db_from_env:
-    # Si la variable existe (en Render), la usa directamente.
+    # Si la variable existe (en Render), la usa directamente con el argumento 'url'.
     DATABASES = {
         'default': dj_database_url.config(
-            conn=db_from_env,
+            url=db_from_env,  # <--- ¡CORRECCIÓN CLAVE! Cambiado de 'conn' a 'url'
             conn_max_age=600
         )
     }

@@ -117,15 +117,30 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # --- CORS ---
+CORS_ALLOW_ALL_ORIGINS = False
+
 CORS_ALLOWED_ORIGINS = [
-    "https://control-escolar-webapp.onrender.com",  
-     "https://control-escolar-webapp-u9pa.onrender.com",
-    "http://localhost:4200",
-    "http://127.0.0.1:4200",
+    "https://control-escolar-webapp.onrender.com",
 ]
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https:\/\/control-escolar-webapp.*\.onrender\.com$",
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
